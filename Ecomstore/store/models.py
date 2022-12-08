@@ -18,6 +18,12 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def productnum(self):
+        prods = self.product_set.all()
+        num = prods.count()
+        return num 
+
 class Product(models.Model):
     name = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)

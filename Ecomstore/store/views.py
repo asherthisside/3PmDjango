@@ -3,13 +3,25 @@ from .models import *
 
 # Create your views here.
 def index(request):
-    return render(request, 'index.html')
+    categories = Category.objects.all()
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'index.html', context)
 
 def cart(request):
-    return render(request, 'cart.html')
+    categories = Category.objects.all()
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'cart.html', context)
 
 def checkout(request):
-    return render(request, 'checkout.html')
+    categories = Category.objects.all()
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'checkout.html', context)
 
 def about(request):
     return render(request, 'about.html')
