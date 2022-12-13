@@ -4,9 +4,15 @@ from django.contrib import messages
 
 # Create your views here.
 def index(request):
+    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
+    ordereditems = OrderItem.objects.filter(order=order)
     categories = Category.objects.all()
+    item_count = sum(item.quantity for item in ordereditems)
     context = {
         'categories': categories,
+        'items': ordereditems,
+        'count': item_count,
+        'order': order
     }
     return render(request, 'index.html', context)
 
@@ -14,10 +20,12 @@ def cart(request):
     order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
     ordereditems = OrderItem.objects.filter(order=order)
     categories = Category.objects.all()
+    item_count = sum(item.quantity for item in ordereditems)
     context = {
         'categories': categories,
         'items': ordereditems,
-        'order': order
+        'order': order,
+        'count': item_count,
     }
     return render(request, 'cart.html', context)
 
@@ -44,9 +52,11 @@ def checkout(request):
         return redirect("products") 
 
     else:
+        item_count = sum(item.quantity for item in ordereditems)
         context = {
             'categories': categories,
             'items': ordereditems,
+            'count': item_count,
             'order': order
         }
         return render(request, 'checkout.html', context)
@@ -57,8 +67,13 @@ def about(request):
 def products(request):
     products = Product.objects.all()
     categories = Category.objects.all()
+    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
+    ordereditems = OrderItem.objects.filter(order=order)
+    item_count = sum(item.quantity for item in ordereditems)
     context = {
         'categories': categories,
+        'count': item_count,
+        'items': ordereditems,
         'products': products
     }
     return render(request, 'products.html', context)
