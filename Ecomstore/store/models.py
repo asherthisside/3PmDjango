@@ -83,3 +83,5 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return self.customer.name + " - " + self.address
+
+# Remaining: Cart | Checkout | Sort | Pagination | User Management | Quantity Update

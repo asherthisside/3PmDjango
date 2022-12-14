@@ -43,7 +43,7 @@
                             <div class="product product-7 text-center">
                                 <figure class="product-media">
                                     <!-- <span class="product-label label-new">New</span> -->
-                                    <a href="product.html">
+                                    <a href="/product/{{ product.id }}">
                                         <img src="{{ product.imageURL }}" alt="Product image" class="product-image">
                                     </a>
 
@@ -66,7 +66,7 @@
                                     <div class="product-cat">
                                         <a href="/category/{{ product.category.id }}">{{ product.category }}</a>
                                     </div><!-- End .product-cat -->
-                                    <h3 class="product-title"><a href="product.html">{{ product.name }}</a></h3>
+                                    <h3 class="product-title"><a href="/product/{{ product.id }}">{{ product.name }}</a></h3>
                                     <!-- End .product-title -->
                                     <div class="product-price">
                                         Rs. {{ product.price }}

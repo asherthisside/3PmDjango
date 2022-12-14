@@ -82,6 +82,18 @@ def products(request):
     }
     return render(request, 'products.html', context)
 
+def product(request, id):
+    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
+    ordereditems = OrderItem.objects.filter(order=order)
+    item_count = sum(item.quantity for item in ordereditems)
+    product = Product.objects.get(id=id)
+    context = {
+        'count': item_count,
+        'items': ordereditems,
+        'product': product
+    }
+    return render(request, 'single_product.html', context)
+
 def cat_product(request, cid):
     categories = Category.objects.all()
     category = Category.objects.get(id=cid)
