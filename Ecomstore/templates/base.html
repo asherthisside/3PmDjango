@@ -78,10 +78,13 @@
             <div
               class="header-search header-search-extended header-search-visible header-search-no-radius d-none d-lg-block">
               <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
-              <form action="#" method="get">
+              <form action="/products" method="post">
+                {% csrf_token %}
+
                 <div class="header-search-wrapper search-wrapper-wide">
                   <label for="q" class="sr-only">Search</label>
-                  <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                  <input type="search" class="form-control" name="product" id="q" placeholder="Search product ..."
+                    required>
                   <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
                 </div><!-- End .header-search-wrapper -->
               </form>
@@ -163,7 +166,7 @@
                 <nav class="side-nav">
                   <ul class="menu-vertical sf-arrows">
                     {% for category in categories %}
-                    <li class="item-lead"><a href="#">{{ category.name }}</a></li>
+                    <li class="item-lead"><a href="/category/{{ category.id }}">{{ category.name }}</a></li>
                     {% endfor %}
                   </ul><!-- End .menu-vertical -->
                 </nav><!-- End .side-nav -->
@@ -178,7 +181,7 @@
                   <a href="/" class="">Home</a>
                 </li>
                 <li>
-                  <a href="products" class="">Shop</a>
+                  <a href="/products" class="">Shop</a>
                 </li>
               </ul><!-- End .menu -->
             </nav><!-- End .main-nav -->
@@ -391,7 +394,8 @@
     <div class="mobile-menu-wrapper">
       <span class="mobile-menu-close"><i class="icon-close"></i></span>
 
-      <form action="#" method="get" class="mobile-search">
+      <form action="/products" method="post" class="mobile-search">
+        {% csrf_token %}
         <label for="mobile-search" class="sr-only">Search</label>
         <input type="search" class="form-control" name="mobile-search" id="mobile-search"
           placeholder="Search product ..." required>
