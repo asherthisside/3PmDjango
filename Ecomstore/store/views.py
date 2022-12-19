@@ -127,3 +127,27 @@ def add_to_cart(request, pid):
             newitem.save()
 
     return redirect("/products")
+
+def sort(request):
+    products = Product.objects.all()
+    categories = Category.objects.all()
+    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
+    ordereditems = OrderItem.objects.filter(order=order)
+    item_count = sum(item.quantity for item in ordereditems)
+    if request.method == 'POST':
+        sortby = request.POST['sortby']
+
+        if sortby == 'pricel2h':
+            products = Product.objects.order_by("price")   
+
+        if sortby == 'priceh2l':
+            products = Product.objects.order_by("-price") 
+
+    context = {
+        'count': item_count,
+        'items': ordereditems,
+        'products': products,
+        'categories': categories,
+    }
+    return render(request, 'sortedproducts.html', context)
+    
