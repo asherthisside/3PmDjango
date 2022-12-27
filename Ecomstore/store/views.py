@@ -75,6 +75,7 @@ def products(request):
     else:
         products = Product.objects.all()
     context = {
+        'order': order,
         'categories': categories,
         'count': item_count,
         'items': ordereditems,
@@ -113,18 +114,24 @@ def cat_product(request, cid):
 def add_to_cart(request, pid):
     customer = request.user.customer
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
-    ordered_items = OrderItem.objects.filter(order=order)
     product = Product.objects.get(id=pid)
-
+    ordered_items = OrderItem.objects.filter(order=order)
     for i in ordered_items:
-        if product == i.product:
-            print(i.product.name)
-            i.quantity += 1
-            i.save()
-
+        print("abc", i.product.name)
+        if i.product.name == product.name:
+            item = OrderItem.objects.get(product=product)
+            item.quantity + 1
         else:
+            print("def", i.product.name)
             newitem = OrderItem(order=order, product=product, quantity=1)
             newitem.save()
+
+    # if product in ordered_items:
+    #     item = OrderItem.objects.get(product=product)
+    #     item.quantity + 1
+    # else:
+    #     newitem = OrderItem(order=order, product=product, quantity=1)
+    #     newitem.save()
 
     return redirect("/products")
 
@@ -151,3 +158,4 @@ def sort(request):
     }
     return render(request, 'sortedproducts.html', context)
     
+# https://github.com/Sandyrepo8650/Ecom
