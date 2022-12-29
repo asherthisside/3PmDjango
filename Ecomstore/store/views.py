@@ -3,11 +3,19 @@ from .models import *
 from django.contrib import messages
 
 # Create your views here.
+
+
 def index(request):
-    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
-    ordereditems = OrderItem.objects.filter(order=order)
     categories = Category.objects.all()
-    item_count = sum(item.quantity for item in ordereditems)
+    if request.user.is_authenticated:
+        order, created = Order.objects.get_or_create(
+            customer=request.user.customer, complete=False)
+        ordereditems = OrderItem.objects.filter(order=order)
+        item_count = sum(item.quantity for item in ordereditems)
+    else:
+        item_count = 0
+        ordereditems = []
+        order = {"cart_total": 0}
     context = {
         'categories': categories,
         'items': ordereditems,
@@ -16,23 +24,37 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
+
 def cart(request):
-    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
-    ordereditems = OrderItem.objects.filter(order=order)
     categories = Category.objects.all()
-    item_count = sum(item.quantity for item in ordereditems)
+    if request.user.is_authenticated:
+        order, created = Order.objects.get_or_create(
+            customer=request.user.customer, complete=False)
+        ordereditems = OrderItem.objects.filter(order=order)
+        item_count = sum(item.quantity for item in ordereditems)
+    else:
+        item_count = 0
+        ordereditems = []
+        order = {"cart_total": 0}
     context = {
         'categories': categories,
         'items': ordereditems,
-        'order': order,
         'count': item_count,
+        'order': order
     }
     return render(request, 'cart.html', context)
 
+
 def checkout(request):
-    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
-    ordereditems = OrderItem.objects.filter(order=order)
     categories = Category.objects.all()
+    if request.user.is_authenticated:
+        order, created = Order.objects.get_or_create(
+        customer=request.user.customer, complete=False)
+        ordereditems = OrderItem.objects.filter(order=order)
+    else:
+        item_count = 0
+        ordereditems = []
+        order = {"cart_total": 0}
     if request.method == "POST":
         address1 = request.POST['address1']
         address2 = request.POST['address2']
@@ -44,12 +66,13 @@ def checkout(request):
         state = request.POST['state']
         zip = request.POST['zip']
 
-        new_shipping = ShippingAddress(customer=request.user.customer, order=order, address=address, city=city, state=state, zipcode=zip)
+        new_shipping = ShippingAddress(
+            customer=request.user.customer, order=order, address=address, city=city, state=state, zipcode=zip)
         new_shipping.save()
         order.complete = True
-        
+
         messages.success(request, "Order has been placed")
-        return redirect("products") 
+        return redirect("products")
 
     else:
         item_count = sum(item.quantity for item in ordereditems)
@@ -61,19 +84,27 @@ def checkout(request):
         }
         return render(request, 'checkout.html', context)
 
+
 def about(request):
     return render(request, 'about.html')
 
+
 def products(request):
     categories = Category.objects.all()
-    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
-    ordereditems = OrderItem.objects.filter(order=order)
-    item_count = sum(item.quantity for item in ordereditems)
     if request.method == 'POST':
         p_name = request.POST['product']
         products = Product.objects.filter(name__contains=p_name)
     else:
         products = Product.objects.all()
+    if request.user.is_authenticated: 
+        order, created = Order.objects.get_or_create(
+            customer=request.user.customer, complete=False)
+        ordereditems = OrderItem.objects.filter(order=order)
+        item_count = sum(item.quantity for item in ordereditems)
+    else:
+        item_count = 0
+        ordereditems = []
+        order = {"cart_total": 0}
     context = {
         'order': order,
         'categories': categories,
@@ -83,8 +114,10 @@ def products(request):
     }
     return render(request, 'products.html', context)
 
+
 def product(request, id):
-    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
+    order, created = Order.objects.get_or_create(
+        customer=request.user.customer, complete=False)
     ordereditems = OrderItem.objects.filter(order=order)
     item_count = sum(item.quantity for item in ordereditems)
     product = Product.objects.get(id=id)
@@ -95,10 +128,12 @@ def product(request, id):
     }
     return render(request, 'single_product.html', context)
 
+
 def cat_product(request, cid):
     categories = Category.objects.all()
     category = Category.objects.get(id=cid)
-    order, created = Order.objects.get_or_create(customer=request.user.customer, complete=False)
+    order, created = Order.objects.get_or_create(
+        customer=request.user.customer, complete=False)
     ordereditems = OrderItem.objects.filter(order=order)
     item_count = sum(item.quantity for item in ordereditems)
     products = Product.objects.filter(category=category)
@@ -111,11 +146,25 @@ def cat_product(request, cid):
     }
     return render(request, 'category.html', context)
 
+
 def add_to_cart(request, pid):
     customer = request.user.customer
-    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    order, created = Order.objects.get_or_create(
+        customer=customer, complete=False)
     product = Product.objects.get(id=pid)
     ordered_items = OrderItem.objects.filter(order=order)
+    # try:
+    #     cart_item = OrderItem.objects.get(product=product, order=order)
+    #     cart_item.quantity += 1
+    #     cart_item.save()
+    # except OrderItem.DoesNotExist:
+    #     cart_item = OrderItem.objects.create(
+    #         product=product,
+    #         order = order,
+    #         quantity = 1
+    #     )
+    #     cart_item.save()
+    # return redirect('/products')
     for i in ordered_items:
         print("abc", i.product.name)
         if i.product.name == product.name:
