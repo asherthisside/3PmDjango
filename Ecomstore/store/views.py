@@ -36,6 +36,9 @@ def cart(request):
         item_count = 0
         ordereditems = []
         order = {"cart_total": 0}
+    if request.method == 'POST':
+        quantity = request.POST['quantity']
+        print(quantity)
     context = {
         'categories': categories,
         'items': ordereditems,
@@ -121,10 +124,12 @@ def product(request, id):
     ordereditems = OrderItem.objects.filter(order=order)
     item_count = sum(item.quantity for item in ordereditems)
     product = Product.objects.get(id=id)
+    selected_item = order.orderitem_set.get(product=product)
     context = {
         'count': item_count,
         'items': ordereditems,
-        'product': product
+        'product': product,
+        'selected_item': selected_item,
     }
     return render(request, 'single_product.html', context)
 
@@ -152,36 +157,17 @@ def add_to_cart(request, pid):
     order, created = Order.objects.get_or_create(
         customer=customer, complete=False)
     product = Product.objects.get(id=pid)
-    ordered_items = OrderItem.objects.filter(order=order)
-    # try:
-    #     cart_item = OrderItem.objects.get(product=product, order=order)
-    #     cart_item.quantity += 1
-    #     cart_item.save()
-    # except OrderItem.DoesNotExist:
-    #     cart_item = OrderItem.objects.create(
-    #         product=product,
-    #         order = order,
-    #         quantity = 1
-    #     )
-    #     cart_item.save()
-    # return redirect('/products')
-    for i in ordered_items:
-        print("abc", i.product.name)
-        if i.product.name == product.name:
-            item = OrderItem.objects.get(product=product)
-            item.quantity + 1
-        else:
-            print("def", i.product.name)
-            newitem = OrderItem(order=order, product=product, quantity=1)
-            newitem.save()
-
-    # if product in ordered_items:
-    #     item = OrderItem.objects.get(product=product)
-    #     item.quantity + 1
-    # else:
-    #     newitem = OrderItem(order=order, product=product, quantity=1)
-    #     newitem.save()
-
+    try: 
+        cart_item = OrderItem.objects.get(product=product, order=order)
+        cart_item.quantity += 1 
+        cart_item.save()
+    except OrderItem.DoesNotExist:
+        cart_item = OrderItem.objects.create(
+            product=product, 
+            order=order, 
+            quantity=1
+        )
+        cart_item.save()
     return redirect("/products")
 
 def sort(request):
@@ -207,4 +193,21 @@ def sort(request):
     }
     return render(request, 'sortedproducts.html', context)
     
+def quanminus(request, pid ):
+    customer = request.user.customer
+    order = Order.objects.get(customer=customer, complete=False)
+    item = order.orderitem_set.get(id=pid)
+    item.quantity -= 1 
+    item.save()
+    if item.quantity < 1:
+        item.delete()
+    return redirect("/cart")
+
+def quanplus(request, pid):
+    customer = request.user.customer
+    order = Order.objects.get(customer=customer, complete=False)
+    item = order.orderitem_set.get(id=pid)  
+    item.quantity += 1 
+    item.save()
+    return redirect("/cart") 
 # https://github.com/Sandyrepo8650/Ecom

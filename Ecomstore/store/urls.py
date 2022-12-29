@@ -11,4 +11,6 @@ urlpatterns = [
     path('add_to_cart/<int:pid>', views.add_to_cart, name='add_to_cart'),
     path('category/<int:cid>', views.cat_product, name='category'),
     path('sort', views.sort, name='sort'),
+    path('add_to_quantity/<int:pid>', views.quanplus, name='decreasequantity'),
+    path('remove_from_quantity/<int:pid>', views.quanminus, name='increasequantity'),
 ]
